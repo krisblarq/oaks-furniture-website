@@ -3,7 +3,7 @@ import http from "http";
 import mongoose from "mongoose";
 import { config } from "./config/config";
 import Logging from "./library/Logging";
-import userRoutes from "./routes/User";
+import userRoutes from "./routes/user.routes";
 
 const router = express();
 

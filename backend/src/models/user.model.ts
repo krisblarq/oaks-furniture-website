@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import config from "config";
 import dotenv from "dotenv";
+import { number } from "zod";
 
 dotenv.config();
 
@@ -32,7 +33,7 @@ userSchema.pre("save", async function (next) {
     return next();
   }
 
-  const salt = await bcrypt.gensalt<number>(process.env.SALT_WORK_FACTOR);
+  const salt = await bcrypt.genSalt(config.get<number>("SALT_WORK_FACTOR"));
 
   const hash = await bcrypt.hashSync(user.password, salt);
 
@@ -44,7 +45,7 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.comparePassword = async function (
   candidatePassword: string
 ): Promise<boolean> {
-  const user = this as userDocument;
+  const user = this as UserDocument;
 
   return bcrypt.compare(candidatePassword, user.password).catch((e) => false);
 };
