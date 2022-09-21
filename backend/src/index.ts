@@ -58,7 +58,7 @@ const StartServer = () => {
   });
 
   /** Routes */
-  router.use("/users", userRoutes);
+  router.use("/api/createUsers", userRoutes);
 
   /** Health Check */
   router.get("/ping", (req, res, next) =>

@@ -9,7 +9,7 @@ export async function createUserHandler(
 ) {
   try {
     const user = await createUser(req.body);
-    return user;
+    return res.send(user);
   } catch (e: any) {
     Logging.error(e);
     return res.status(409).send(e.message);
