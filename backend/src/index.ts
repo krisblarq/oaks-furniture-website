@@ -1,11 +1,16 @@
 import express from "express";
 import http from "http";
+import cors from "cors";
 import mongoose from "mongoose";
 import { config } from "./config/config";
 import Logging from "./library/Logging";
 import userRoutes from "./routes/user.routes";
 
-const router = express();
+const app = express();
+
+app.use(cors());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 /** Connect to mongodb */
 mongoose
@@ -21,7 +26,7 @@ mongoose
 
 /** Only start the server if mongo connects */
 const StartServer = () => {
-  router.use((req, res, next) => {
+  app.use((req, res, next) => {
     /** Log the request */
     Logging.info(
       `Incoming -> Method: [${req.method}] - Url: [${req.url}] - IP: [${req.socket.remoteAddress}]`
@@ -36,11 +41,8 @@ const StartServer = () => {
     next();
   });
 
-  router.use(express.urlencoded({ extended: true }));
-  router.use(express.json());
-
   /** API rules */
-  router.use((req, res, next) => {
+  app.use((req, res, next) => {
     res.header("Access-COntrol-Allow-Origin", "*");
     res.header(
       "Access-Control-Allow-Headers",
@@ -58,21 +60,21 @@ const StartServer = () => {
   });
 
   /** Routes */
-  router.use("/users", userRoutes);
+  app.use("/api/users", userRoutes);
 
   /** Health Check */
-  router.get("/ping", (req, res, next) =>
+  app.get("/ping", (req, res, next) =>
     res.status(200).json({ message: "pong" })
   );
   /** Erro Handling */
-  router.use((req, res, next) => {
+  app.use((req, res, next) => {
     const error = new Error("not found");
     Logging.error(error);
     return res.status(404).json({ message: error.message });
   });
 
   http
-    .createServer(router)
+    .createServer(app)
     .listen(config.server.port, () =>
       Logging.info(`Server is running on port ${config.server.port}.`)
     );
